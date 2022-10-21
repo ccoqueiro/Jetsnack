@@ -26,24 +26,32 @@ import com.splunk.rum.SplunkRum
 import com.splunk.rum.StandardAttributes
 import io.opentelemetry.api.common.Attributes
 
+class MyApplication : Application() {
+    private val config: Config = SplunkRum.newConfigBuilder()
+        .realm("us1") // Splunk Realm
+        .rumAccessToken("8-ZcTvQbgkEX4fpZjBynTA") // Your RUM token
+        .applicationName("Jetsnack") // Name of your app
+        .deploymentEnvironment("lab") // Environment
+        .debugEnabled(true)
+        .globalAttributes(
+            Attributes.builder() // Add the application version. Alternatively, you
+                // can pass BuildConfig.VERSION_NAME as the value.
+                .put(StandardAttributes.APP_VERSION, "<VERSION>")
+                .build()
+        )
+        .build()
+
+    // ...
+    override fun onCreate() {
+        super.onCreate()
+        SplunkRum.initialize(config, this)
+    }
+}
+
 class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        val config = SplunkRum.newConfigBuilder()
-            .realm("REALM") // Splunk Realm
-            .rumAccessToken("TOKEN") // Your RUM token
-            .applicationName("APP") // Name of your app
-            .deploymentEnvironment("dev") // Environment
-            .slowRenderingDetectionEnabled(false)
-            .debugEnabled(true)
-            .globalAttributes(
-                Attributes.builder() // Add the application version. Alternatively, you
-                    // can pass BuildConfig.VERSION_NAME as the value.
-                    .put(StandardAttributes.APP_VERSION, "VERSION")
-                    .build()
-            ).build()
-        SplunkRum.initialize(config, this.application)
         // This app draws behind the system bars, so we want to handle fitting system windows
         WindowCompat.setDecorFitsSystemWindows(window, false)
 
